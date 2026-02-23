@@ -78,12 +78,14 @@ function SectionDivider() {
 // HERO
 // ─────────────────────────────────────────────────────────
 function Hero() {
+  const { isDark } = useTheme()
   return (
     <section className="snap-section hero-mural hero-mural-bg relative flex justify-center items-center">
-      <div className="text-center text-white bg-black px-12 py-8">
-        <h1 className="text-5xl tracking-[0.2em]">AVIK</h1>
-        <p className="mt-4 tracking-[0.1em]">Illustration &amp; Visual Design</p>
-      </div>
+      <img
+        src={isDark ? '/Assets/Main_logo_dark.png' : '/Assets/Main_logo.png'}
+        alt="Avik"
+        className="h-auto w-auto max-h-64"
+      />
       <a href="#illustrations" className="absolute bottom-16 text-2xl text-white no-underline scroll-bounce z-10">↓</a>
     </section>
   )
