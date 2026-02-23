@@ -101,9 +101,9 @@ export default function Navbar() {
       className="fixed top-0 left-0 w-full bg-white dark:bg-black shadow-sm z-[1000] transition-colors duration-300"
     >
       {/* Main Nav */}
-      <nav className="grid grid-cols-3 items-center max-w-[1100px] mx-auto px-4 py-4">
+      <nav className="relative flex md:grid md:grid-cols-3 items-center max-w-[1100px] mx-auto px-4 py-4">
         {/* Left links */}
-        <div className="invisible md:visible md:flex gap-8 justify-start">
+        <div className="hidden md:flex gap-8 justify-start">
           {navLinks.map((link) => (
             <Link key={link.href} to={link.href} className="block">
               <NavIcon {...link} />
@@ -112,7 +112,7 @@ export default function Navbar() {
         </div>
 
         {/* Logo (center) */}
-        <div className="flex justify-center col-span-1 md:col-span-1">
+        <div className="flex-1 flex justify-center md:flex-none">
           <Link
             to="/"
             className="block hover:scale-105 transition-transform duration-200"
@@ -141,7 +141,7 @@ export default function Navbar() {
 
         {/* Hamburger (mobile) */}
         <button
-          className="md:hidden text-2xl bg-transparent border-none text-black dark:text-white justify-self-end"
+          className="md:hidden text-2xl bg-transparent border-none text-black dark:text-white ml-auto"
           aria-label="Menu"
           aria-expanded={menuOpen}
           onClick={(e) => {
