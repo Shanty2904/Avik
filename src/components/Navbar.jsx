@@ -103,7 +103,7 @@ export default function Navbar() {
       {/* Main Nav */}
       <nav className="grid grid-cols-3 items-center max-w-[1100px] mx-auto px-4 py-4">
         {/* Left links */}
-        <div className="hidden md:flex gap-8 justify-start">
+        <div className="invisible md:visible md:flex gap-8 justify-start">
           {navLinks.map((link) => (
             <Link key={link.href} to={link.href} className="block">
               <NavIcon {...link} />
@@ -112,7 +112,7 @@ export default function Navbar() {
         </div>
 
         {/* Logo (center) */}
-        <div className="flex justify-center">
+        <div className="flex justify-center col-span-1 md:col-span-1">
           <Link
             to="/"
             className="block hover:scale-105 transition-transform duration-200"
@@ -141,7 +141,7 @@ export default function Navbar() {
 
         {/* Hamburger (mobile) */}
         <button
-          className="md:hidden text-2xl bg-transparent border-none text-black dark:text-white"
+          className="md:hidden text-2xl bg-transparent border-none text-black dark:text-white justify-self-end"
           aria-label="Menu"
           aria-expanded={menuOpen}
           onClick={(e) => {
