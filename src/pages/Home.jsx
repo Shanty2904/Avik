@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import emailjs from "@emailjs/browser";
-import { useSnapScroll } from "../context/ScrollContext.jsx";
+import { useSnapScroll, useSlideToRef } from "../context/ScrollContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
 
 // ─────────────────────────────────────────────────────────
@@ -663,7 +663,12 @@ const TOTAL_SECTIONS = 11;
 export default function Home() {
   const snapRef = useSnapScroll();
   const { currentIndex, slideTo } = useSlideScroll(snapRef, TOTAL_SECTIONS);
+  const slideToRef = useSlideToRef();
 
+  useEffect(() => {
+    if (slideToRef) slideToRef.current = slideTo;
+  }, [slideTo, slideToRef]);
+  
   return (
     <div className="snap-container" ref={snapRef}>
       <Hero />
