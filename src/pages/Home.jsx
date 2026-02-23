@@ -46,7 +46,7 @@ function SectionDivider() {
 }
 
 // ─────────────────────────────────────────────────────────
-// More Work button — fixed: dark idle now correctly uses More_work_dark.png
+// More Work button — fixed: dark idle uses More_work_dark.png
 // ─────────────────────────────────────────────────────────
 function MoreWorkButton({ to }) {
   const { isDark } = useTheme()
@@ -72,21 +72,33 @@ function MoreWorkButton({ to }) {
 }
 
 // ─────────────────────────────────────────────────────────
+// Shared title style — Shackleton Wide Italic
+// ─────────────────────────────────────────────────────────
+const TITLE_STYLE = {
+  fontFamily: '"shackleton-wide", serif',
+  fontWeight: 400,
+  fontStyle: 'italic',
+  letterSpacing: '0.06em',
+  lineHeight: 1,
+}
+
+// ─────────────────────────────────────────────────────────
 // SectionFrame
-// Renders TWO snap stops per section:
-//   Stop 1 — full viewport, title PNG centered and large
-//   Stop 2 — title animates to top-left, scales down,
-//             content fades and slides up beneath it
+// Two snap stops per section:
+//
+//   Stop 1 — Title only, centered, large
+//   Stop 2 — Title uses CSS transform (GPU-composited) to
+//             fly to top-left and scale down. Zero layout
+//             recalculation — butter smooth on all devices.
+//             Content fades + slides up with slight delay.
 //
 // Props:
-//   titleSrc  — path to title PNG
-//   titleAlt  — alt text
-//   bg        — tailwind bg classes (same for both frames)
-//   invert    — true if title uses dark:invert (no separate dark PNG)
+//   title     — section title string
+//   bg        — tailwind bg classes for both frames
 //   id        — optional anchor id on content frame
-//   noDivider — skip separator on content frame (last section)
+//   noDivider — skip separator (last section)
 // ─────────────────────────────────────────────────────────
-function SectionFrame({ titleSrc, titleAlt, bg, invert = false, children, id, noDivider = false }) {
+function SectionFrame({ title, bg, children, id, noDivider = false }) {
   const contentRef = useRef(null)
   const [inView, setInView] = useState(false)
   const snapRef = useSnapScroll()
@@ -106,17 +118,19 @@ function SectionFrame({ titleSrc, titleAlt, bg, invert = false, children, id, no
     return () => container.removeEventListener('scroll', check)
   }, [snapRef])
 
-  const invertClass = invert ? 'dark:invert' : ''
+  // Custom easing — fast out, slow in, feels premium
+  const easing = 'cubic-bezier(0.76, 0, 0.24, 1)'
 
   return (
     <>
       {/* ── STOP 1: Title-only frame ── */}
       <section className={`snap-section ${bg} relative flex justify-center items-center overflow-hidden`}>
-        <img
-          src={titleSrc}
-          alt={titleAlt}
-          className={`h-auto w-auto max-h-[14vh] md:max-h-[22vh] select-none ${invertClass}`}
-        />
+        <h2
+          className="text-black dark:text-white text-center px-6 select-none"
+          style={{ ...TITLE_STYLE, fontSize: 'clamp(2.2rem, 8vw, 7.5rem)' }}
+        >
+          {title}
+        </h2>
       </section>
 
       {/* ── STOP 2: Content frame ── */}
@@ -125,38 +139,44 @@ function SectionFrame({ titleSrc, titleAlt, bg, invert = false, children, id, no
         id={id}
         className={`snap-section ${bg} relative flex flex-col overflow-hidden`}
       >
-        {/* Title — transitions from center to top-left, scales down */}
-        <div
-          className={`
-            transition-all duration-700 ease-in-out
-            ${inView
-              ? 'self-start pt-3 pl-3 md:pt-6 md:pl-8'
-              : 'self-center mt-auto mb-auto'
-            }
-          `}
+        {/*
+          Title is absolutely positioned at center by default.
+          On inView: moves to top:0 left:0 and scale(0.13).
+          transformOrigin: top left means the text anchors to
+          the top-left corner as it shrinks — landing precisely
+          in the corner with no overshoot.
+          All values are transform/opacity — pure GPU compositing.
+        */}
+        <h2
+          className="text-black dark:text-white select-none absolute pointer-events-none"
+          style={{
+            ...TITLE_STYLE,
+            fontSize: 'clamp(2.2rem, 8vw, 7.5rem)',
+            top: '50%',
+            left: '50%',
+            transformOrigin: 'top left',
+            whiteSpace: 'nowrap',
+            transform: inView
+              ? 'translate(-50%, -50%) scale(0.13) translate(calc(50% + 14px), calc(50% + 10px))'
+              : 'translate(-50%, -50%) scale(1)',
+            opacity: inView ? 0.38 : 1,
+            transition: `transform 0.8s ${easing}, opacity 0.8s ${easing}`,
+          }}
         >
-          <img
-            src={titleSrc}
-            alt={titleAlt}
-            className={`
-              h-auto w-auto select-none
-              transition-all duration-700 ease-in-out
-              ${invertClass}
-              ${inView
-                ? 'max-h-[22px] md:max-h-[32px] opacity-50'
-                : 'max-h-[14vh] md:max-h-[22vh] opacity-100'
-              }
-            `}
-          />
-        </div>
+          {title}
+        </h2>
 
         {/* Content — fades and slides up after title starts moving */}
         <div
-          className={`
-            flex-1 flex flex-col justify-center
-            transition-all duration-700 ease-in-out delay-150
-            ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}
-          `}
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            opacity: inView ? 1 : 0,
+            transform: inView ? 'translateY(0)' : 'translateY(2rem)',
+            transition: `opacity 0.65s ease 0.22s, transform 0.65s ease 0.22s`,
+          }}
         >
           {children}
         </div>
@@ -168,7 +188,7 @@ function SectionFrame({ titleSrc, titleAlt, bg, invert = false, children, id, no
 }
 
 // ─────────────────────────────────────────────────────────
-// HERO — standalone, no title frame needed
+// HERO — standalone, no title frame
 // ─────────────────────────────────────────────────────────
 function Hero() {
   const { isDark } = useTheme()
@@ -192,18 +212,11 @@ function Hero() {
 function IllustrationsFilm() {
   const items = [...illustrationItems, ...illustrationItems]
   return (
-    <SectionFrame
-      titleSrc="/Assets/illustrations_title.png"
-      titleAlt="Illustrations"
-      bg="bg-white dark:bg-black"
-      invert
-      id="illustrations"
-    >
+    <SectionFrame title="Illustrations" bg="bg-white dark:bg-black" id="illustrations">
       <div className="w-full overflow-hidden film-wrapper">
         <div className="film-track flex w-max">
           {items.map((item, i) => (
             <Link key={i} to={item.href} className="relative mr-4 md:mr-8 flex-shrink-0 group">
-              {/* h-[180px] on mobile, h-[350px] on desktop */}
               <img src={item.src} alt={item.alt} className="h-[180px] md:h-[350px] w-auto object-contain block" />
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex flex-col justify-center items-center text-white text-center">
                 <h3 className="tracking-[0.1em] mb-2 text-xs md:text-base">{item.title}</h3>
@@ -219,16 +232,11 @@ function IllustrationsFilm() {
 }
 
 // ─────────────────────────────────────────────────────────
-// ABOUT ME
+// ABOUT ME — title is "Hello." to match your Hello.png
 // ─────────────────────────────────────────────────────────
 function AboutMe() {
   return (
-    <SectionFrame
-      titleSrc="/Assets/Hello.png"
-      titleAlt="About Me"
-      bg="bg-white dark:bg-black"
-      invert
-    >
+    <SectionFrame title="Hello." bg="bg-white dark:bg-black">
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 w-full grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-6 md:gap-12 items-center">
         <div className="flex items-center justify-center">
           <img
@@ -254,12 +262,7 @@ function AboutMe() {
 // ─────────────────────────────────────────────────────────
 function Projects() {
   return (
-    <SectionFrame
-      titleSrc="/Assets/Project_title.png"
-      titleAlt="Projects"
-      bg="bg-[#f9f9f9] dark:bg-black"
-      invert
-    >
+    <SectionFrame title="Projects" bg="bg-[#f9f9f9] dark:bg-black">
       <div className="max-w-[1100px] mx-auto px-4 md:px-8 w-full">
         <div className="grid grid-cols-2 gap-3 md:gap-5">
           {projects.map((p) => (
@@ -289,12 +292,7 @@ function Projects() {
 // ─────────────────────────────────────────────────────────
 function ServicesSection() {
   return (
-    <SectionFrame
-      titleSrc="/Assets/Services_title.png"
-      titleAlt="Services"
-      bg="bg-white dark:bg-black"
-      invert
-    >
+    <SectionFrame title="Services" bg="bg-white dark:bg-black">
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 w-full text-center">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-5 md:gap-y-10">
           {services.map((s, i) =>
@@ -332,15 +330,7 @@ function ContactSection() {
   }
 
   return (
-    <SectionFrame
-      titleSrc="/Assets/Contact_title.png"
-      titleAlt="Contact"
-      bg="bg-white dark:bg-black"
-      invert
-      id="contact"
-      noDivider
-    >
-      {/* flex-col so form takes space and footer pins to bottom */}
+    <SectionFrame title="Contact" bg="bg-white dark:bg-black" id="contact" noDivider>
       <div className="flex flex-col justify-between h-full px-6 md:px-8">
         {/* Form */}
         <div className="flex justify-center">

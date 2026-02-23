@@ -170,3 +170,9 @@ a, button, img, .clickable {
   background: url("/Assets/Separator_line_neon.png") no-repeat center;
   background-size: contain;
 }
+
+.title-font {
+  font-family: "shackleton-wide", serif; /* swap to whichever you pick */
+  font-weight: 400;
+  font-style: italic;
+}
