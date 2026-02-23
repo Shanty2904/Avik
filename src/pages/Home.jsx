@@ -310,13 +310,13 @@ function SectionFrame({
         className={`snap-section ${bg} relative flex flex-col overflow-hidden`}
       >
         {/* Title — pinned near the top, below navbar */}
-        <div className="px-4 md:px-8 pt-4 md:pt-5">
+        <div className="px-4 md:px-8 pt-4 md:pt-5 text-center">
           <h2
             className="text-black dark:text-white select-none"
             style={{
               ...TITLE_STYLE,
-              fontSize: "clamp(1rem, 2.5vw, 1.8rem)",
-              opacity: isContentActive ? 0.4 : 0,
+              fontSize: "clamp(2rem, 4vw, 4rem)",
+              opacity: isContentActive ? 0.8 : 0,
               transition: "opacity 0.7s ease",
             }}
           >
