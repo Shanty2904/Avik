@@ -44,7 +44,7 @@ function ToTopFAB({ onClick }) {
         ? "/Assets/to_top_dark_hover.png"
         : "/Assets/to_top_dark.png";
     return hovered
-      ? "/Assets/To_top_light_hover.png"
+      ? "/Assets/to_top_light_hover.png"
       : "/Assets/To_top_light.png";
   }
 
