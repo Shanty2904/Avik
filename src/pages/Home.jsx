@@ -81,7 +81,7 @@ function Hero() {
   const { isDark } = useTheme()
   return (
     <section className="snap-section hero-mural hero-mural-bg relative flex justify-center items-center">
-      <div className="bg-black/40 p-6">
+      <div className="bg-white/80 dark:bg-black/80 p-6">
         <img
           src={isDark ? '/Assets/Main_logo_dark.png' : '/Assets/Main_logo.png'}
           alt="Avik"
