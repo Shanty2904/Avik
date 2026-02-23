@@ -235,7 +235,7 @@ function MoreWorkButton({ to }) {
     if (isDark)
       return hovered
         ? "/Assets/More_work_dark_hover.png"
-        : "/Assets/More_work_dark.png";
+        : "/Assets/More_work.png";
     return hovered ? "/Assets/More_work_hover.png" : "/Assets/More_work.png";
   }
 
