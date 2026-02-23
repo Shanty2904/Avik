@@ -137,7 +137,7 @@ function AboutMe() {
       <div className="max-w-[1100px] mx-auto px-8 w-full grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-12 items-center">
         <div className="flex items-center justify-center">
           <img
-            src="/Assets/Final Self Portrait.jpg"
+            src="/Assets/Final Self Portrait.png"
             alt="About Me"
             className="w-full h-auto block max-h-[70vh] object-contain"
           />
