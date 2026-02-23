@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== CUSTOM CURSOR ===== */
+body {
+  cursor: url("/Assets/cursor.png") 8 8, auto;
+  font-family: "Times New Roman", Times, serif;
+}
+
+a, button, img, .clickable {
+  cursor: url("/Assets/cursor_hover.png") 8 8, pointer;
+}
+
+.dark body,
+.dark a,
+.dark button {
+  cursor: url("/Assets/cursor_dark.png") 8 8, auto;
+}
+
+/* ===== SERVICE DIVIDER (PNG) ===== */
+/*.service-divider-light {
+  background: url("/Assets/Separator_line_neon.png") no-repeat center;
+  background-size: contain;
+}
+
+.dark .service-divider-light {
+  background: url("/Assets/Separator_line.png") no-repeat center;
+  background-size: contain;
+}
+
+/* ===== THEME TOGGLE ===== */
+.theme-toggle {
+  background: url("/Assets/LOADER@2x.png") no-repeat center / contain;
+  border: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.dark .theme-toggle {
+  background: url("/Assets/LOADER DARK@2x.png") no-repeat center / contain;
+}
+
+.theme-toggle:hover {
+  transform: rotate(20deg) scale(1.1);
+  opacity: 0.9;
+}
+
+/* ===== FOOTER SOCIAL HOVER ===== */
+.social-instagram:hover img {
+  content: url("/Assets/instagram_hover.png");
+}
+
+.social-linkedin:hover img {
+  content: url("/Assets/linkedin_hover.png");
+}
+
+/* ===== FAB HOVER IMAGE SWAPS ===== */
+.contact-btn:hover img {
+  content: url("/Assets/contact_hover.png");
+}
+
+.to-top-btn:hover img {
+  content: url("/Assets/to_top_light_hover.png");
+}
+
+.dark .to-top-btn img {
+  content: url("/Assets/to_top_dark.png");
+}
+
+.dark .to-top-btn:hover img {
+  content: url("/Assets/to_top_dark_hover.png");
+}
+
+/* ===== SCROLL INDICATOR BOUNCE ===== */
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+.scroll-bounce {
+  animation: bounce-slow 1.5s infinite;
+}
+
+/* ===== HERO MURAL BG ===== */
+.hero-mural-bg {
+  background: url("/Assets/Mural%20Light%20Mode.png") center center / cover no-repeat;
+}
+
+.dark .hero-mural-bg {
+  background: url("/Assets/Mural%20Dark%20Mode.png") center center / cover no-repeat;
+}
+
+/* ===== FILM STRIP ANIMATION ===== */
+@keyframes film-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.film-track {
+  animation: film-scroll 20s linear infinite;
+}
+
+.film-wrapper:hover .film-track {
+  animation-play-state: paused;
+}
+
+/* ===== HERO FADE IN ===== */
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+.hero-mural {
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+}
+
+/* ===== SECTION FADE-IN ON SCROLL ===== */
+.section-hidden {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.section-visible {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCROLL SNAP — Home page full-viewport sections
+   ═══════════════════════════════════════════════════════ */
+
+/*
+  The snap container sits inside <main class="pt-20">.
+  We need it to fill the remaining viewport height and
+  handle its own scroll so CSS snap can work.
+*/
+.snap-container {
+  height: calc(100vh - 5rem); /* 5rem = pt-20 navbar offset */
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  /* Smooth but not instant — browsers use ~400–600ms for mandatory snap */
+}
+
+/* Each section locks to exactly one viewport height */
+.snap-section {
+  height: calc(100vh - 5rem); /* match container so each section = one "frame" */
+  scroll-snap-align: start;
+  scroll-snap-stop: always;  /* prevents fast-scroll from skipping sections */
+  position: relative;
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION DIVIDER BAR — bottom of each snap section
+   Uses your separator PNG assets, theme-aware
+   ═══════════════════════════════════════════════════════ */
+.section-divider-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: url("/Assets/Separator_line.png") no-repeat center;
+  background-size: contain;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.dark .section-divider-bar {
+  background: url("/Assets/Separator_line_neon.png") no-repeat center;
+  background-size: contain;
+}
