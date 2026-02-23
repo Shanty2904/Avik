@@ -616,7 +616,7 @@ function ContactSection({ currentIndex }) {
         <footer className="py-4 md:py-6 text-center text-[#666] dark:text-[#888] text-xs md:text-sm transition-colors duration-300">
           <div className="flex justify-center gap-6 mb-2 md:mb-3">
             <a
-              href="https://www.instagram.com/YOURUSERNAME"
+              href="https://www.instagram.com/rage.rift?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
@@ -629,7 +629,7 @@ function ContactSection({ currentIndex }) {
               />
             </a>
             <a
-              href="https://www.linkedin.com/in/YOURUSERNAME"
+              href="https://www.linkedin.com/in/avik-dixit-a184a9280/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
@@ -668,7 +668,7 @@ export default function Home() {
   useEffect(() => {
     if (slideToRef) slideToRef.current = slideTo;
   }, [slideTo, slideToRef]);
-  
+
   return (
     <div className="snap-container" ref={snapRef}>
       <Hero />
