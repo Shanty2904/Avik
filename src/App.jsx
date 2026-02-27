@@ -7,12 +7,6 @@ import About from './pages/About.jsx'
 import Services from './pages/Services.jsx'
 import Contact from './pages/Contact.jsx'
 
-// Illustration sub-pages
-import WeepingWillow from './pages/illustrations/WeepingWillow.jsx'
-import FloralFaces from './pages/illustrations/FloralFaces.jsx'
-import WinterCabin from './pages/illustrations/WinterCabin.jsx'
-import TideMural from './pages/illustrations/TideMural.jsx'
-
 // Project sub-pages
 import Project1 from './pages/projects/Project1.jsx'
 import Project2 from './pages/projects/Project2.jsx'
@@ -29,12 +23,6 @@ export default function App() {
         <Route path="about" element={<About />} />
         <Route path="services" element={<Services />} />
         <Route path="contact" element={<Contact />} />
-
-        {/* Illustration sub-pages */}
-        <Route path="illustrations/weeping-willow" element={<WeepingWillow />} />
-        <Route path="illustrations/floral-faces" element={<FloralFaces />} />
-        <Route path="illustrations/winter-cabin" element={<WinterCabin />} />
-        <Route path="illustrations/tide-mural" element={<TideMural />} />
 
         {/* Project sub-pages */}
         <Route path="projects/project-1" element={<Project1 />} />
