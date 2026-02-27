@@ -119,102 +119,118 @@ function easeInOutCubic(t) {
 // Returns current section index so components can react.
 // ─────────────────────────────────────────────────────────
 function useSlideScroll(containerRef, totalSections) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const isAnimating = useRef(false);
-  const touchStartY = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const isAnimating = useRef(false)
+  const touchStartY = useRef(null)
+  const accumulated = useRef(0)
+  const cooldownTimer = useRef(null)
 
-  const slideTo = useCallback(
-    (index) => {
-      const container = containerRef.current;
-      if (!container || isAnimating.current) return;
+  const slideTo = useCallback((index) => {
+    const container = containerRef.current
+    if (!container) return
 
-      const clampedIndex = Math.max(0, Math.min(index, totalSections - 1));
-      if (
-        clampedIndex === currentIndex &&
-        container.scrollTop === clampedIndex * container.clientHeight
-      )
-        return;
+    const clampedIndex = Math.max(0, Math.min(index, totalSections - 1))
+    const startTop = container.scrollTop
+    const targetTop = clampedIndex * container.clientHeight
+    if (startTop === targetTop) return
 
-      const startTop = container.scrollTop;
-      const targetTop = clampedIndex * container.clientHeight;
-      if (startTop === targetTop) return;
+    isAnimating.current = true
+    setCurrentIndex(clampedIndex)
 
-      isAnimating.current = true;
-      setCurrentIndex(clampedIndex);
+    const duration = 750
+    const startTime = performance.now()
 
-      const duration = 900; // ms — feel free to adjust
-      const startTime = performance.now();
-
-      function step(now) {
-        const elapsed = now - startTime;
-        const t = Math.min(elapsed / duration, 1);
-        const eased = easeInOutCubic(t);
-        container.scrollTop = startTop + (targetTop - startTop) * eased;
-
-        if (t < 1) {
-          requestAnimationFrame(step);
-        } else {
-          container.scrollTop = targetTop;
-          isAnimating.current = false;
-        }
+    function step(now) {
+      const elapsed = now - startTime
+      const t = Math.min(elapsed / duration, 1)
+      const eased = easeInOutCubic(t)
+      container.scrollTop = startTop + (targetTop - startTop) * eased
+      if (t < 1) {
+        requestAnimationFrame(step)
+      } else {
+        container.scrollTop = targetTop
+        // Short cooldown after animation ends before accepting next input
+        cooldownTimer.current = setTimeout(() => {
+          isAnimating.current = false
+          accumulated.current = 0
+        }, 100)
       }
-
-      requestAnimationFrame(step);
-    },
-    [containerRef, currentIndex, totalSections],
-  );
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    // Wheel
-    function onWheel(e) {
-      e.preventDefault();
-      if (isAnimating.current) return;
-      const direction = e.deltaY > 0 ? 1 : -1;
-      slideTo(currentIndex + direction);
     }
 
-    // Touch
+    requestAnimationFrame(step)
+  }, [containerRef, totalSections])
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    function onWheel(e) {
+      e.preventDefault()
+
+      // Accumulate delta — trackpads send many small events
+      accumulated.current += e.deltaY
+
+      // Threshold: 60px accumulated before triggering a slide
+      const THRESHOLD = 60
+
+      if (isAnimating.current) return
+
+      if (accumulated.current > THRESHOLD) {
+        setCurrentIndex(prev => {
+          const next = Math.min(prev + 1, totalSections - 1)
+          slideTo(next)
+          return prev // slideTo will call setCurrentIndex
+        })
+        accumulated.current = 0
+      } else if (accumulated.current < -THRESHOLD) {
+        setCurrentIndex(prev => {
+          const next = Math.max(prev - 1, 0)
+          slideTo(next)
+          return prev
+        })
+        accumulated.current = 0
+      }
+    }
+
     function onTouchStart(e) {
-      touchStartY.current = e.touches[0].clientY;
+      touchStartY.current = e.touches[0].clientY
     }
 
     function onTouchEnd(e) {
-      if (touchStartY.current === null) return;
-      const diff = touchStartY.current - e.changedTouches[0].clientY;
-      if (Math.abs(diff) > 40) {
-        slideTo(currentIndex + (diff > 0 ? 1 : -1));
+      if (touchStartY.current === null) return
+      const diff = touchStartY.current - e.changedTouches[0].clientY
+      if (Math.abs(diff) > 40 && !isAnimating.current) {
+        slideTo(currentIndex + (diff > 0 ? 1 : -1))
       }
-      touchStartY.current = null;
+      touchStartY.current = null
     }
 
-    // Keyboard
     function onKeyDown(e) {
-      if (e.key === "ArrowDown" || e.key === "PageDown") {
-        e.preventDefault();
-        slideTo(currentIndex + 1);
-      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
-        e.preventDefault();
-        slideTo(currentIndex - 1);
+      if (isAnimating.current) return
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        e.preventDefault()
+        slideTo(currentIndex + 1)
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault()
+        slideTo(currentIndex - 1)
       }
     }
 
-    container.addEventListener("wheel", onWheel, { passive: false });
-    container.addEventListener("touchstart", onTouchStart, { passive: true });
-    container.addEventListener("touchend", onTouchEnd, { passive: true });
-    window.addEventListener("keydown", onKeyDown);
+    container.addEventListener('wheel', onWheel, { passive: false })
+    container.addEventListener('touchstart', onTouchStart, { passive: true })
+    container.addEventListener('touchend', onTouchEnd, { passive: true })
+    window.addEventListener('keydown', onKeyDown)
 
     return () => {
-      container.removeEventListener("wheel", onWheel);
-      container.removeEventListener("touchstart", onTouchStart);
-      container.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [containerRef, currentIndex, slideTo]);
+      container.removeEventListener('wheel', onWheel)
+      container.removeEventListener('touchstart', onTouchStart)
+      container.removeEventListener('touchend', onTouchEnd)
+      window.removeEventListener('keydown', onKeyDown)
+      clearTimeout(cooldownTimer.current)
+    }
+  }, [containerRef, currentIndex, slideTo, totalSections])
 
-  return { currentIndex, slideTo };
+  return { currentIndex, slideTo }
 }
 
 // ─────────────────────────────────────────────────────────
