@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import emailjs from '@emailjs/browser'
-import { useSnapScroll } from '../context/ScrollContext.jsx'
+import { useSnapScroll, useSlideToRef } from '../context/ScrollContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 
 // ─────────────────────────────────────────────────────────
@@ -491,7 +491,13 @@ const TOTAL_SECTIONS = 11
 
 export default function Home() {
   const snapRef = useSnapScroll()
+  const slideToRef = useSlideToRef()
   const { currentIndex, slideTo } = useSlideScroll(snapRef, TOTAL_SECTIONS)
+
+  // Register slideTo so FloatingButtons can call slideTo(0)
+  useEffect(() => {
+    if (slideToRef) slideToRef.current = slideTo
+  }, [slideTo, slideToRef])
 
   return (
     <div className="snap-container" ref={snapRef}>
