@@ -17,7 +17,7 @@ const services = [
   {
     title: 'Illustration',
     short: 'Editorial, branding, and narrative illustration.',
-    desc: 'Custom illustrations built around your story — whether for editorial use, brand identity, product packaging, or personal projects. Each piece is crafted with attention to mood, palette, and detail, ensuring the work feels intentional and alive. I work across digital and traditional mediums depending on the project's needs.',
+    desc: "Custom illustrations built around your story — whether for editorial use, brand identity, product packaging, or personal projects. Each piece is crafted with attention to mood, palette, and detail, ensuring the work feels intentional and alive. I work across digital and traditional mediums depending on the project's needs.",
   },
   {
     title: 'Concept Art',
@@ -32,7 +32,7 @@ const services = [
   {
     title: 'Commissions',
     short: 'Personal artwork made just for you.',
-    desc: 'One-of-a-kind artwork created in close collaboration with you — portraits, gifts, narrative pieces, or anything in between. Commissions are personal by nature, so the process is conversational and iterative. You're involved every step of the way, from initial concept to final delivery.',
+    desc: "One-of-a-kind artwork created in close collaboration with you — portraits, gifts, narrative pieces, or anything in between. Commissions are personal by nature, so the process is conversational and iterative. You're involved every step of the way, from initial concept to final delivery.",
   },
 ]
 
