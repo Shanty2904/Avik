@@ -124,127 +124,99 @@ function easeInOutCubic(t) {
 // • Mouse wheel: fires immediately on any non-zero delta
 // ─────────────────────────────────────────────────────────
 function useSlideScroll(containerRef, totalSections) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const currentIndexRef = useRef(0); // source of truth for scroll logic
-  const isAnimating = useRef(false);
-  const rafId = useRef(null);
-  const gestureTimer = useRef(null);
-  const gestureFired = useRef(false);
-  const touchStartY = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const currentIndexRef = useRef(0)
+  const isAnimating = useRef(false)
+  const rafId = useRef(null)
+  const touchStartY = useRef(null)
+  const lastSlideTime = useRef(0)
 
-  // slideTo is stable — never recreated, reads from refs not state
-  const slideTo = useCallback(
-    (index) => {
-      const container = containerRef.current;
-      if (!container || isAnimating.current) return;
+  const slideTo = useCallback((index) => {
+    const container = containerRef.current
+    if (!container || isAnimating.current) return
 
-      const clamped = Math.max(0, Math.min(index, totalSections - 1));
-      if (clamped === currentIndexRef.current) return;
+    const clamped = Math.max(0, Math.min(index, totalSections - 1))
+    if (clamped === currentIndexRef.current) return
 
-      const startTop = container.scrollTop;
-      const targetTop = clamped * container.clientHeight;
-      if (Math.abs(startTop - targetTop) < 1) return;
+    const startTop = container.scrollTop
+    const targetTop = clamped * container.clientHeight
+    if (Math.abs(startTop - targetTop) < 1) return
 
-      // Update ref immediately, state after animation
-      currentIndexRef.current = clamped;
-      isAnimating.current = true;
-      accumulated.current = 0;
+    currentIndexRef.current = clamped
+    isAnimating.current = true
+    lastSlideTime.current = Date.now()
 
-      const duration = 680;
-      const startTime = performance.now();
+    const duration = 680
+    const startTime = performance.now()
 
-      function step(now) {
-        const t = Math.min((now - startTime) / duration, 1);
-        container.scrollTop =
-          startTop + (targetTop - startTop) * easeInOutCubic(t);
-
-        if (t < 1) {
-          rafId.current = requestAnimationFrame(step);
-        } else {
-          container.scrollTop = targetTop;
-          isAnimating.current = false;
-          setCurrentIndex(clamped); // single React re-render at end of slide
-        }
+    function step(now) {
+      const t = Math.min((now - startTime) / duration, 1)
+      container.scrollTop = startTop + (targetTop - startTop) * easeInOutCubic(t)
+      if (t < 1) {
+        rafId.current = requestAnimationFrame(step)
+      } else {
+        container.scrollTop = targetTop
+        isAnimating.current = false
+        setCurrentIndex(clamped)
       }
+    }
 
-      cancelAnimationFrame(rafId.current);
-      rafId.current = requestAnimationFrame(step);
-    },
-    [containerRef, totalSections],
-  ); // stable — totalSections never changes
+    cancelAnimationFrame(rafId.current)
+    rafId.current = requestAnimationFrame(step)
+  }, [containerRef, totalSections])
 
-  // Register all listeners ONCE on mount
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const container = containerRef.current
+    if (!container) return
 
     function onWheel(e) {
-      e.preventDefault();
-
-      const direction = e.deltaY > 0 ? 1 : -1;
-
-      // If a gesture is already in progress, just reset the end timer
-      // so we don't fire again mid-gesture
-      if (gestureFired.current) {
-        clearTimeout(gestureTimer.current);
-        gestureTimer.current = setTimeout(() => {
-          gestureFired.current = false;
-        }, 180);
-        return;
-      }
-
-      // First event of a new gesture — fire once, then lock
-      if (!isAnimating.current) {
-        gestureFired.current = true;
-        slideTo(currentIndexRef.current + direction);
-      }
-
-      // Unlock after wheel events stop coming in
-      clearTimeout(gestureTimer.current);
-      gestureTimer.current = setTimeout(() => {
-        gestureFired.current = false;
-      }, 180);
+      e.preventDefault()
+      if (isAnimating.current) return
+      // Cooldown of 600ms between slides — covers trackpad bursts
+      if (Date.now() - lastSlideTime.current < 600) return
+      const direction = e.deltaY > 0 ? 1 : -1
+      slideTo(currentIndexRef.current + direction)
     }
 
     function onTouchStart(e) {
-      touchStartY.current = e.touches[0].clientY;
+      touchStartY.current = e.touches[0].clientY
     }
 
     function onTouchEnd(e) {
-      if (touchStartY.current === null) return;
-      const diff = touchStartY.current - e.changedTouches[0].clientY;
+      if (touchStartY.current === null) return
+      const diff = touchStartY.current - e.changedTouches[0].clientY
       if (Math.abs(diff) > 40 && !isAnimating.current) {
-        slideTo(currentIndexRef.current + (diff > 0 ? 1 : -1));
+        slideTo(currentIndexRef.current + (diff > 0 ? 1 : -1))
       }
-      touchStartY.current = null;
+      touchStartY.current = null
     }
 
     function onKeyDown(e) {
-      if (isAnimating.current) return;
-      if (e.key === "ArrowDown" || e.key === "PageDown") {
-        e.preventDefault();
-        slideTo(currentIndexRef.current + 1);
-      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
-        e.preventDefault();
-        slideTo(currentIndexRef.current - 1);
+      if (isAnimating.current) return
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        e.preventDefault()
+        slideTo(currentIndexRef.current + 1)
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault()
+        slideTo(currentIndexRef.current - 1)
       }
     }
 
-    container.addEventListener("wheel", onWheel, { passive: false });
-    container.addEventListener("touchstart", onTouchStart, { passive: true });
-    container.addEventListener("touchend", onTouchEnd, { passive: true });
-    window.addEventListener("keydown", onKeyDown);
+    container.addEventListener('wheel', onWheel, { passive: false })
+    container.addEventListener('touchstart', onTouchStart, { passive: true })
+    container.addEventListener('touchend', onTouchEnd, { passive: true })
+    window.addEventListener('keydown', onKeyDown)
 
     return () => {
-      container.removeEventListener("wheel", onWheel);
-      container.removeEventListener("touchstart", onTouchStart);
-      container.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("keydown", onKeyDown);
-      cancelAnimationFrame(rafId.current);
-    };
-  }, [containerRef, slideTo]); // slideTo is stable so this runs once
+      container.removeEventListener('wheel', onWheel)
+      container.removeEventListener('touchstart', onTouchStart)
+      container.removeEventListener('touchend', onTouchEnd)
+      window.removeEventListener('keydown', onKeyDown)
+      cancelAnimationFrame(rafId.current)
+    }
+  }, [containerRef, slideTo])
 
-  return { currentIndex, slideTo };
+  return { currentIndex, slideTo }
 }
 
 // ─────────────────────────────────────────────────────────
