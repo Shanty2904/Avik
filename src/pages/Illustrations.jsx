@@ -233,12 +233,6 @@ export default function Illustrations() {
 
       {/* ── Page header ── */}
       <div className="pt-28 pb-12 md:pt-36 md:pb-16 text-center px-6">
-        <p
-          className="text-black/40 dark:text-white/40 mb-3 tracking-[0.25em] uppercase"
-          style={{ fontFamily: 'serif', fontSize: '0.7rem' }}
-        >
-          Selected Works
-        </p>
         <h1
           className="text-black dark:text-white"
           style={{ ...FONT, fontSize: 'clamp(3.5rem, 10vw, 9rem)', lineHeight: 0.95 }}
@@ -250,12 +244,12 @@ export default function Illustrations() {
 
       {/* ── Masonry grid ── */}
       <div
-        className="px-4 md:px-8 pb-20"
+        className="px-6 md:px-16 pb-24"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
           gridAutoRows: '300px',
-          gap: '10px',
+          gap: '24px',
         }}
       >
         {illustrations.map((item, i) => (
