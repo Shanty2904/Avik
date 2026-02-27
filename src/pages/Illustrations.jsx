@@ -2,14 +2,10 @@ import { useState, useEffect, useCallback } from 'react'
 
 // ─────────────────────────────────────────────────────────
 // Illustrations data
-// To add more: copy any item block and fill in the fields.
-// src       — filename inside /Assets/
-// title     — displayed in lightbox
-// desc      — caption shown in lightbox
-// span      — controls masonry size: 'tall', 'wide', or ''
-//             tall = takes more vertical space
-//             wide = takes more horizontal space (2 cols)
-//             ''   = normal square-ish cell
+// src   — filename inside /Assets/
+// title — displayed on hover and in lightbox
+// desc  — caption in lightbox
+// span  — 'tall' (2 rows), 'wide' (2 cols), '' (normal)
 // ─────────────────────────────────────────────────────────
 const illustrations = [
   {
@@ -48,14 +44,19 @@ const illustrations = [
     desc: 'Description coming soon.',
     span: '',
   },
-  // ── Add more illustrations below ──
-  // {
-  //   src: '/Assets/YOUR_FILE.png',
-  //   title: 'Your Title',
-  //   desc: 'Your description.',
-  //   span: '',   // 'tall', 'wide', or ''
-  // },
+  // ── Add more below ──
+  // { src: '/Assets/YOUR_FILE.png', title: 'Title', desc: 'Desc.', span: '' },
 ]
+
+// ─────────────────────────────────────────────────────────
+// Shared font style
+// ─────────────────────────────────────────────────────────
+const FONT = {
+  fontFamily: '"shackleton-condensed", serif',
+  fontWeight: 400,
+  fontStyle: 'normal',
+  letterSpacing: '0.07em',
+}
 
 // ─────────────────────────────────────────────────────────
 // Lightbox
@@ -63,7 +64,6 @@ const illustrations = [
 function Lightbox({ items, index, onClose, onPrev, onNext }) {
   const item = items[index]
 
-  // Close on Escape, navigate on arrow keys
   const handleKey = useCallback((e) => {
     if (e.key === 'Escape') onClose()
     if (e.key === 'ArrowRight') onNext()
@@ -81,67 +81,71 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
 
   return (
     <div
-      className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/90"
+      className="fixed inset-0 z-[2000] flex items-center justify-center"
+      style={{ backgroundColor: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(8px)' }}
       onClick={onClose}
     >
-      {/* Modal — stop click propagation so clicking inside doesn't close */}
       <div
-        className="relative flex flex-col items-center max-w-[90vw] max-h-[90vh]"
+        className="relative flex flex-col items-center px-6"
+        style={{ maxWidth: '90vw', maxHeight: '90vh' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Close button */}
+        {/* Close */}
         <button
           onClick={onClose}
-          className="absolute -top-10 right-0 text-white/70 hover:text-white text-3xl leading-none bg-transparent border-none cursor-pointer transition-colors"
+          className="absolute -top-2 right-0 text-black/40 hover:text-black text-2xl leading-none bg-transparent border-none cursor-pointer transition-colors"
+          style={{ ...FONT, fontSize: '1.5rem', letterSpacing: '0.1em' }}
           aria-label="Close"
         >
-          ×
+          ✕
         </button>
 
         {/* Image */}
         <img
           src={item.src}
           alt={item.title}
-          className="max-w-[80vw] max-h-[70vh] object-contain block"
-          style={{ userSelect: 'none' }}
+          className="object-contain block"
+          style={{ maxWidth: '78vw', maxHeight: '68vh', userSelect: 'none' }}
         />
 
-        {/* Title + description */}
-        <div className="mt-4 text-center px-4">
+        {/* Divider */}
+        <div className="w-12 h-px bg-black/20 my-5" />
+
+        {/* Title + desc */}
+        <div className="text-center">
           <h3
-            className="text-white mb-1"
-            style={{
-              fontFamily: '"shackleton-condensed", serif',
-              fontWeight: 400,
-              fontStyle: 'normal',
-              letterSpacing: '0.08em',
-              fontSize: 'clamp(1rem, 3vw, 1.8rem)',
-            }}
+            className="text-black mb-2"
+            style={{ ...FONT, fontSize: 'clamp(1rem, 2.5vw, 1.6rem)' }}
           >
             {item.title}
           </h3>
-          <p className="text-white/60 text-sm max-w-[500px] leading-relaxed">
+          <p className="text-black/50 text-sm max-w-[440px] leading-relaxed font-serif">
             {item.desc}
           </p>
         </div>
 
         {/* Prev / Next */}
-        <div className="flex gap-8 mt-5">
+        <div className="flex items-center gap-10 mt-6">
           <button
             onClick={onPrev}
             disabled={index === 0}
-            className="text-white/50 hover:text-white disabled:opacity-20 text-xl bg-transparent border-none cursor-pointer transition-colors tracking-widest"
+            className="bg-transparent border-none cursor-pointer transition-opacity disabled:opacity-20"
+            style={{ ...FONT, fontSize: '0.7rem', letterSpacing: '0.2em', color: '#000' }}
             aria-label="Previous"
           >
             ← PREV
           </button>
-          <span className="text-white/30 text-sm self-center">
+          <span
+            className="text-black/30"
+            style={{ fontFamily: 'serif', fontSize: '0.75rem', letterSpacing: '0.1em' }}
+          >
             {index + 1} / {items.length}
           </span>
           <button
             onClick={onNext}
             disabled={index === items.length - 1}
-            className="text-white/50 hover:text-white disabled:opacity-20 text-xl bg-transparent border-none cursor-pointer transition-colors tracking-widest"
+            className="bg-transparent border-none cursor-pointer transition-opacity disabled:opacity-20"
+            style={{ ...FONT, fontSize: '0.7rem', letterSpacing: '0.2em', color: '#000' }}
             aria-label="Next"
           >
             NEXT →
@@ -153,42 +157,66 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
 }
 
 // ─────────────────────────────────────────────────────────
-// Masonry grid item
+// Grid item — clean hover: subtle overlay, title slides up
 // ─────────────────────────────────────────────────────────
 function GridItem({ item, index, onClick }) {
+  const [hovered, setHovered] = useState(false)
+
   const spanClass =
     item.span === 'tall' ? 'row-span-2' :
-    item.span === 'wide' ? 'col-span-2' :
-    ''
+    item.span === 'wide' ? 'col-span-2' : ''
 
   return (
     <div
-      className={`relative overflow-hidden group cursor-pointer ${spanClass}`}
+      className={`relative overflow-hidden cursor-pointer bg-[#f5f5f5] dark:bg-[#111] ${spanClass}`}
       onClick={() => onClick(index)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{ userSelect: 'none' }}
     >
+      {/* Image */}
       <img
         src={item.src}
         alt={item.title}
-        className="w-full h-full object-cover block transition-transform duration-500 group-hover:scale-105"
+        className="w-full h-full object-cover block"
+        loading="lazy"
+        style={{
+          transform: hovered ? 'scale(1.04)' : 'scale(1)',
+          transition: 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        }}
       />
-      {/* Hover overlay */}
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors duration-300 flex flex-col justify-end p-4 md:p-6">
-        <h3
-          className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 mb-1"
-          style={{
-            fontFamily: '"shackleton-condensed", serif',
-            fontWeight: 400,
-            fontStyle: 'normal',
-            letterSpacing: '0.08em',
-            fontSize: 'clamp(0.9rem, 2vw, 1.4rem)',
-          }}
+
+      {/* Hover overlay — very light, just enough to read text */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 50%)',
+          opacity: hovered ? 1 : 0,
+          transition: 'opacity 0.4s ease',
+        }}
+      />
+
+      {/* Title — slides up from bottom */}
+      <div
+        className="absolute bottom-0 left-0 right-0 px-4 md:px-5 pb-4 md:pb-5"
+        style={{
+          opacity: hovered ? 1 : 0,
+          transform: hovered ? 'translateY(0)' : 'translateY(8px)',
+          transition: 'opacity 0.4s ease, transform 0.4s ease',
+        }}
+      >
+        <p
+          className="text-white"
+          style={{ ...FONT, fontSize: 'clamp(0.75rem, 1.5vw, 1.1rem)', lineHeight: 1 }}
         >
           {item.title}
-        </h3>
-        <span className="text-white/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-xs tracking-widest">
-          VIEW
-        </span>
+        </p>
+        <p
+          className="text-white/60 mt-1"
+          style={{ fontFamily: 'serif', fontSize: '0.65rem', letterSpacing: '0.15em' }}
+        >
+          VIEW ↗
+        </p>
       </div>
     </div>
   )
@@ -200,61 +228,54 @@ function GridItem({ item, index, onClick }) {
 export default function Illustrations() {
   const [lightboxIndex, setLightboxIndex] = useState(null)
 
-  function openLightbox(index) {
-    setLightboxIndex(index)
-  }
-
-  function closeLightbox() {
-    setLightboxIndex(null)
-  }
-
-  function prevItem() {
-    setLightboxIndex(i => Math.max(i - 1, 0))
-  }
-
-  function nextItem() {
-    setLightboxIndex(i => Math.min(i + 1, illustrations.length - 1))
-  }
-
   return (
-    <div className="min-h-screen bg-white dark:bg-black pt-24 pb-16 px-4 md:px-8">
-      {/* Page title */}
-      <div className="mb-10 md:mb-14 text-center">
+    <div className="min-h-screen bg-white dark:bg-black">
+
+      {/* ── Page header ── */}
+      <div className="pt-28 pb-12 md:pt-36 md:pb-16 text-center px-6">
+        <p
+          className="text-black/40 dark:text-white/40 mb-3 tracking-[0.25em] uppercase"
+          style={{ fontFamily: 'serif', fontSize: '0.7rem' }}
+        >
+          Selected Works
+        </p>
         <h1
           className="text-black dark:text-white"
-          style={{
-            fontFamily: '"shackleton-condensed", serif',
-            fontWeight: 400,
-            fontStyle: 'normal',
-            letterSpacing: '0.08em',
-            fontSize: 'clamp(2.5rem, 8vw, 7rem)',
-          }}
+          style={{ ...FONT, fontSize: 'clamp(3.5rem, 10vw, 9rem)', lineHeight: 0.95 }}
         >
           Illustrations
         </h1>
+        <div className="w-10 h-px bg-black/20 dark:bg-white/20 mx-auto mt-8" />
       </div>
 
-      {/* Masonry grid */}
+      {/* ── Masonry grid ── */}
       <div
-        className="grid gap-3 md:gap-4"
+        className="px-4 md:px-8 pb-20"
         style={{
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gridAutoRows: '280px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+          gridAutoRows: '300px',
+          gap: '10px',
         }}
       >
         {illustrations.map((item, i) => (
-          <GridItem key={i} item={item} index={i} onClick={openLightbox} />
+          <GridItem
+            key={i}
+            item={item}
+            index={i}
+            onClick={setLightboxIndex}
+          />
         ))}
       </div>
 
-      {/* Lightbox */}
+      {/* ── Lightbox ── */}
       {lightboxIndex !== null && (
         <Lightbox
           items={illustrations}
           index={lightboxIndex}
-          onClose={closeLightbox}
-          onPrev={prevItem}
-          onNext={nextItem}
+          onClose={() => setLightboxIndex(null)}
+          onPrev={() => setLightboxIndex(i => Math.max(i - 1, 0))}
+          onNext={() => setLightboxIndex(i => Math.min(i + 1, illustrations.length - 1))}
         />
       )}
     </div>
